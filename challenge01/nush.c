@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "svec.h"
+#include "tokenize.h"
 
 void
 execute(char* cmd)
@@ -33,7 +35,8 @@ execute(char* cmd)
         printf("Child knows parent pid: %d\n", getppid());
 
         for (int ii = 0; ii < strlen(cmd); ++ii) {
-            if (cmd[ii] == ' ') {
+	    //if (cmd[ii] == ' ') {
+            if (cmd[ii] == '\n') {
                 cmd[ii] = 0;
                 break;
             }
@@ -54,17 +57,16 @@ int
 main(int argc, char* argv[])
 {
     char cmd[256];
-
-    if (argc == 1) {
+    while(1) {
         printf("nush$ ");
         fflush(stdout);
         fgets(cmd, 256, stdin);
-    }
-    else {
-        memcpy(cmd, "echo", 5);
+	svec* tokens = tokenize(cmd);
+	svec_rev(tokens);
+	svec_print(tokens);
     }
 
-    execute(cmd);
+    //execute(cmd);
 
     return 0;
 }
