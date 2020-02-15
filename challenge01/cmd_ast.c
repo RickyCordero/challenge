@@ -4,23 +4,26 @@
 #include "cmd_ast.h"
 
 cmd_ast*
-make_cmd_ast_cmd(char* cmd)
+make_cmd_ast_cmd(svec* cmd)
 {
 	cmd_ast* cmd_ast = malloc(sizeof(cmd_ast));
 	cmd_ast->op    = "=";
 	cmd_ast->arg0  =  0;
 	cmd_ast->arg1  =  0;
-	cmd_ast->cmd =  strdup(cmd);
+	cmd_ast->cmd   = make_svec();
+	memcpy(cmd_ast->cmd->data, cmd->data, cmd->size*sizeof(char*));
+	cmd_ast->cmd->size = cmd->size;
+	cmd_ast->cmd->capacity = cmd->capacity;
 }
 
 cmd_ast*
-make_cmd_ast_op(char* op, cmd_ast* a0, cmd_ast* a1)
+make_cmd_ast_op(const char* op, cmd_ast* a0, cmd_ast* a1)
 {
 	cmd_ast* cmd_ast = malloc(sizeof(cmd_ast));
 	cmd_ast->op    = strdup(op);
 	cmd_ast->arg0  = a0;
 	cmd_ast->arg1  = a1;
-	cmd_ast->cmd = "";
+	cmd_ast->cmd   = 0;
 }
 
 void
@@ -49,7 +52,7 @@ cmd_ast_to_string(cmd_ast* cmd_ast)
 {
 	if (cmd_ast->op == "=") {
 		char* res = malloc(16);
-		sprintf(res, "%s", cmd_ast->cmd);
+		sprintf(res, "%s", svec_to_string(cmd_ast->cmd));
 		return res;
 	} else {
 		char* l = cmd_ast_to_string(cmd_ast->arg0);

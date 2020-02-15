@@ -100,3 +100,30 @@ svec_print(svec* sv)
 		printf("%s\n", svec_get(sv, ii));
 	}
 }
+
+char*
+svec_to_string(svec* sv)
+{
+	int cc = 0;
+	for (int ii=0; ii<sv->size; ++ii) {
+		for (int jj=0; jj < strlen(sv->data[ii]); ++jj) {
+			cc+=1;
+		}
+	}
+	// Create a space separated string
+	char* res = malloc((cc + sv->size)*sizeof(char));
+	int kk=0;
+	for(int ii=0; ii < sv->size; ++ii){
+		int jj = 0;
+		for (; jj < strlen(sv->data[ii]); ++jj){
+			res[kk + jj] = sv->data[ii][jj];
+		}
+		kk += jj;	
+		if (ii != sv->size-1){
+			res[kk] = ' ';
+			kk+=1;
+		}
+	}
+	res[kk] = 0; // null terminated string
+	return res;
+}

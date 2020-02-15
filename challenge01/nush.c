@@ -67,13 +67,14 @@ main(int argc, char* argv[])
 		break;
 	}
 	svec* tokens = tokenize(cmd);
-	svec_rev(tokens);
-	svec_print(tokens);
+	//svec_rev(tokens);
+	//svec_print(tokens);
+	char* token_string = svec_to_string(tokens);
+	printf("%s\n", token_string);
 
-	/*
-	cmd_ast* cmd_ast = parse(tokens);
-	cmd_ast_print(cmd_ast);
-	*/
+	//cmd_ast* cmd_ast = parse(tokens);
+	//cmd_ast_print(cmd_ast);
+	
     }
 
     //execute(cmd);
