@@ -76,7 +76,7 @@ main(int argc, char* argv[])
 	cmd_ast_print(cmd_ast);
 	
     }
-
+	printf("\n");
     //execute(cmd);
 
     return 0;

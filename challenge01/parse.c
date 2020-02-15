@@ -40,8 +40,10 @@ parse(svec* tokens)
 	}*/
 
 	// TODO: This array determines order of operations
-	// -> Figure out what the order should be
-	const char* ops[] = {"<", ">", "|", "&", "&&", "||", ";"};
+	// -> Higher precedence operator = higher array index in ops
+	//const char* ops[] = {"<", ">", "|", "&", "&&", "||", ";"};
+
+	const char* ops[] = {";", "||", "&&", "&", "|", ">", "<"};
 
 	for (int ii=0; ii < 7; ++ii) {
 		const char* op = ops[ii];
