@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include "svec.h"
 #include "tokenize.h"
+#include "cmd_ast.h"
+#include "parse.h"
 
 void
 execute(char* cmd)
@@ -60,10 +62,18 @@ main(int argc, char* argv[])
     while(1) {
         printf("nush$ ");
         fflush(stdout);
-        fgets(cmd, 256, stdin);
+        char* rv = fgets(cmd, 256, stdin);
+	if(!rv){
+		break;
+	}
 	svec* tokens = tokenize(cmd);
 	svec_rev(tokens);
 	svec_print(tokens);
+
+	/*
+	cmd_ast* cmd_ast = parse(tokens);
+	cmd_ast_print(cmd_ast);
+	*/
     }
 
     //execute(cmd);
