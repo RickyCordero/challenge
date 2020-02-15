@@ -6,14 +6,16 @@
 cmd_ast*
 make_cmd_ast_cmd(svec* cmd)
 {
-	cmd_ast* cmd_ast = malloc(sizeof(cmd_ast));
-	cmd_ast->op    = "=";
-	cmd_ast->arg0  =  0;
-	cmd_ast->arg1  =  0;
-	cmd_ast->cmd   = make_svec();
-	memcpy(cmd_ast->cmd->data, cmd->data, cmd->size*sizeof(char*));
-	cmd_ast->cmd->size = cmd->size;
-	cmd_ast->cmd->capacity = cmd->capacity;
+	cmd_ast* cmd_ast       = malloc(sizeof(cmd_ast));
+	cmd_ast->op            = "=";
+	cmd_ast->arg0          =  0;
+	cmd_ast->arg1          =  0;
+	cmd_ast->cmd           = make_svec();
+	//memcpy(cmd_ast->cmd->data, cmd->data, cmd->size*sizeof(char*));
+	for (int ii=0; ii < cmd->size; ++ii) {
+		svec_push_back(cmd_ast->cmd, strdup(svec_get(cmd, ii)));
+	}
+	return cmd_ast;
 }
 
 cmd_ast*
@@ -24,6 +26,7 @@ make_cmd_ast_op(const char* op, cmd_ast* a0, cmd_ast* a1)
 	cmd_ast->arg0  = a0;
 	cmd_ast->arg1  = a1;
 	cmd_ast->cmd   = 0;
+	return cmd_ast;
 }
 
 void
@@ -51,10 +54,12 @@ char*
 cmd_ast_to_string(cmd_ast* cmd_ast)
 {
 	if (cmd_ast->op == "=") {
+		// is command
 		char* res = malloc(16);
 		sprintf(res, "%s", svec_to_string(cmd_ast->cmd));
 		return res;
 	} else {
+		// is operator
 		char* l = cmd_ast_to_string(cmd_ast->arg0);
 		char* r = cmd_ast_to_string(cmd_ast->arg1);
 		char* res = malloc(128);
