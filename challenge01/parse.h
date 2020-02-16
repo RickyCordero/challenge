@@ -5,5 +5,6 @@
 #include "svec.h"
 
 cmd_ast* parse(svec* tokens);
+svec* slice(svec* tokens, int lower, int upper);
 
 #endif

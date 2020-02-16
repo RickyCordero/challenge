@@ -10,7 +10,7 @@
 #include "parse.h"
 
 void
-execute(char* cmd)
+execute(svec* cmd)
 {
     int cpid;
 
@@ -35,74 +35,47 @@ execute(char* cmd)
         // child process
         printf("Child pid: %d\n", getpid());
         printf("Child knows parent pid: %d\n", getppid());
-
-        for (int ii = 0; ii < strlen(cmd); ++ii) {
-            if (cmd[ii] == ' ') {
-                cmd[ii] = 0;
-                break;
-            }
-        }
+	
+	int bb = strlen(cmd->data[0]);
+	char* cmd_root = malloc((bb+1)*sizeof(char));
+	memcpy(cmd_root, cmd->data[0], bb);
+	cmd_root[bb] = 0;
 
         // The argv array for the child.
         // Terminated by a null pointer.
-        char* args[] = {cmd, "one", 0};
+        //char* args[] = {cmd, "one", 0};
+
+	cmd->data[cmd->size] = 0;
 
         printf("== executed program's output: ==\n");
 
-        execvp(cmd, args);
-        printf("Can't get here, exec only returns on error.");
+        int e = execvp(cmd_root, cmd->data);
+	printf("%d\n", e);
+	if (e==-1) {
+		perror("execvp");
+	}
     }
 }
 
 int
 eval(cmd_ast* cmd_ast)
 {
+	if (!cmd_ast->cmd->data[0]) {
+		// enter key, no input
+		return 0;
+	}
 	if (strcmp(cmd_ast->op, "=") == 0) {
-		// base case: "command arg1 arg2 ..."
+		// base case: "cd ..."
 		if (strcmp(svec_get(cmd_ast->cmd, 0),"cd") == 0) {
-			
-			char cmd[] = { 'c', 'd', 0 };
-			/*
-			int cc = 0;
-			for (int ii=0; ii < cmd_ast->cmd->size; ++ii) {
-				for (int jj=0; jj < strlen(svec_get(cmd_ast->cmd, ii)); ++jj) {
-					++cc;
-				}
-			}
-			char** args = malloc((cc+1)*sizeof(char));
-			memcpy(args, cmd_ast->cmd->data, cc);
-			args[cc] = 0;
-			// TODO: Fix this
-			*/
-			//char* args[] = {cmd, 0};
-			//execvp(cmd, args);
-			
-			execute(svec_to_string(cmd_ast->cmd));
+			chdir(svec_to_string(cmd_ast->cmd));
 		}
+		// base case: "exit ..."
 		if (strcmp(svec_get(cmd_ast->cmd, 0), "exit") == 0) {
-			
-			char cmd[] = {'e', 'x', 'i', 't', 0};
-			/*
-			int cc = 0;
-			for (int ii=0; ii < cmd_ast->cmd->size; ++ii) {
-				for (int jj=0; jj < strlen(svec_get(cmd_ast->cmd, ii)); ++jj) {
-					++cc;
-				}
-			}
-			char** args = malloc((cc+1)*sizeof(char));
-			memcpy(args, cmd_ast->cmd->data, cc);
-			args[cc] = 0;
-			// TODO: Fix this
-			*/
-			//char* args[] = {cmd, 0};
-			//execvp(cmd, args);
-			
-			execute(svec_to_string(cmd_ast->cmd));
+			exit(0);
 		}
-		// otherwise, fork and exec
-		//
-		//
-
+		// base case: "command arg1 arg2 ..."
+		// fork and exec
+		execute(cmd_ast->cmd);
 	} else {
 		// "command1 OP command2"
 		if (strcmp(cmd_ast->op, ";") == 0) {
@@ -193,16 +166,13 @@ main(int argc, char* argv[])
 		break;
 	}
 	svec* tokens = tokenize(cmd);
-	//svec_rev(tokens);
 	//svec_print(tokens);
 	//char* token_string = svec_to_string(tokens);
 	//printf("%s\n", token_string);
 
 	cmd_ast* cmd_ast = parse(tokens);
-	cmd_ast_print(cmd_ast);
+	//cmd_ast_print(cmd_ast);
 	eval(cmd_ast);
-	//execute(cmd);
-
     }
 	printf("\n");
 

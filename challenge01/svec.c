@@ -118,7 +118,7 @@ svec_to_string(svec* sv)
 		for (; jj < strlen(sv->data[ii]); ++jj){
 			res[kk + jj] = sv->data[ii][jj];
 		}
-		kk += jj;	
+		kk += jj;
 		if (ii != sv->size-1){
 			res[kk] = ' ';
 			kk+=1;
