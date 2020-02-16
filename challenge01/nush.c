@@ -60,14 +60,18 @@ execute(svec* cmd)
 int
 eval(cmd_ast* cmd_ast)
 {
-	if (!cmd_ast->cmd->data[0]) {
-		// enter key, no input
-		return 0;
-	}
 	if (strcmp(cmd_ast->op, "=") == 0) {
+		if (!cmd_ast->cmd->data[0]) {
+			// user hit enter key, no input
+			return 0;
+		}
 		// base case: "cd ..."
 		if (strcmp(svec_get(cmd_ast->cmd, 0),"cd") == 0) {
-			chdir(svec_to_string(cmd_ast->cmd));
+			//char* cmd_string = svec_to_string(cmd_ast->cmd);
+			svec* path = slice(cmd_ast->cmd, 1, cmd_ast->cmd->size);
+			char* path_string = svec_to_string(path);
+			chdir(path_string);
+			return 0;
 		}
 		// base case: "exit ..."
 		if (strcmp(svec_get(cmd_ast->cmd, 0), "exit") == 0) {
@@ -82,6 +86,7 @@ eval(cmd_ast* cmd_ast)
 			// "command1 ; command2"
 			eval(cmd_ast->arg0);
 			eval(cmd_ast->arg1);
+			return 0;
 		}
 		if (strcmp(cmd_ast->op, "&&") == 0) {
 			// "command1 && command2"
@@ -171,7 +176,7 @@ main(int argc, char* argv[])
 	//printf("%s\n", token_string);
 
 	cmd_ast* cmd_ast = parse(tokens);
-	//cmd_ast_print(cmd_ast);
+	cmd_ast_print(cmd_ast);
 	eval(cmd_ast);
     }
 	printf("\n");
