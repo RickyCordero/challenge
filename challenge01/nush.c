@@ -8,6 +8,8 @@
 #include "tokenize.h"
 #include "cmd_ast.h"
 #include "parse.h"
+#include <sys/stat.h>
+#include <fcntl.h>
 
 int
 execute(svec* cmd)
@@ -56,6 +58,15 @@ execute(svec* cmd)
 	exit(0);
 	//return e;
     }
+}
+
+void
+check_rv(int rv)
+{
+	if (rv < 0) {
+		perror("pipe error");
+		exit(1);
+	}
 }
 
 int
@@ -126,6 +137,7 @@ eval(cmd_ast* cmd_ast)
 			}
 			else {
 				int status = eval(cmd_ast->arg0);
+				// kill child
 				if (status != 0) {
 					exit(1);
 				}
@@ -134,10 +146,52 @@ eval(cmd_ast* cmd_ast)
 			
 		}
 		if (strcmp(cmd_ast->op, ">") == 0) {
-			
+			// "command1 > file1"
+			int cpid;	
+			if ((cpid = fork())) {
+				int status;
+				waitpid(cpid, &status, 0);
+				return status;
+			} else {
+				close(1); // close stdout
+				char* file_path = svec_get(cmd_ast->arg1->cmd, 0);
+				int fd_out = open(file_path, O_WRONLY|O_CREAT, 0666);
+				if (fd_out < 0) {
+					perror("open");
+				}
+				dup(fd_out); // put in place of stdout
+				int status = eval(cmd_ast->arg0); // will write to new file descriptor
+				close(fd_out);
+				// kill child
+				if (status != 0) {
+					exit(1);
+				}
+				exit(0);
+			}
 		}
 		if (strcmp(cmd_ast->op, "<") == 0) {
-			
+			// "command1 < file1"
+			int cpid;	
+			if ((cpid = fork())) {
+				int status;
+				waitpid(cpid, &status, 0);
+				return status;
+			} else {
+				close(0); // close stdin
+				char* file_path = svec_get(cmd_ast->arg1->cmd, 0);
+				int fd_in = open(file_path, O_RDONLY, 0666);
+				if (fd_in < 0) {
+					perror("open");
+				}
+				dup(fd_in); // put in place of stdout
+				int status = eval(cmd_ast->arg0); // will read from new file descriptor
+				close(fd_in);
+				// kill child
+				if (status != 0) {
+					exit(1);
+				}
+				exit(0);
+			}		
 		}
 		if (strcmp(cmd_ast->op, "|") == 0) {
 				
@@ -162,7 +216,7 @@ main(int argc, char* argv[])
 		//printf("%s\n", token_string);
 		
 		cmd_ast* cmd_ast = parse(tokens);
-		cmd_ast_print(cmd_ast);
+		//cmd_ast_print(cmd_ast);
 		eval(cmd_ast);
 	}
 	printf("\n");
