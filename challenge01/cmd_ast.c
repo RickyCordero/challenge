@@ -64,8 +64,13 @@ cmd_ast_to_string(cmd_ast* cmd_ast)
 		char* r = cmd_ast_to_string(cmd_ast->arg1);
 		char* res = malloc(128);
 		sprintf(res, "(%s %s %s)", l, cmd_ast->op, r);
-		free(l);
-		free(r);
+		/*
+		if (l) {
+			free(l);
+		}
+		if (r) {
+			free(r);
+		}*/
 		return res;
 	}
 }
