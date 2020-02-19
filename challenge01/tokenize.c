@@ -113,13 +113,14 @@ tokenize(const char* text)
 			continue;
 		}
 
+		/*
 		if(isdigit(text[ii])) {
 			char* number = read_number(text, ii);
 			svec_push_back(sv, number);
 			ii += strlen(number);
 			free(number);
 			continue;
-		}
+		}*/
 
 		// Else, it must be a command name or argument
 		char* arg_or_name = read_arg_or_name(text, ii);

@@ -6,7 +6,7 @@
 cmd_ast*
 make_cmd_ast_cmd(svec* cmd)
 {
-	cmd_ast* cmd_ast       = malloc(sizeof(cmd_ast));
+	cmd_ast* cmd_ast       = malloc(sizeof(*cmd_ast));
 	cmd_ast->op            = "=";
 	cmd_ast->arg0          =  0;
 	cmd_ast->arg1          =  0;
@@ -21,7 +21,7 @@ make_cmd_ast_cmd(svec* cmd)
 cmd_ast*
 make_cmd_ast_op(const char* op, cmd_ast* a0, cmd_ast* a1)
 {
-	cmd_ast* cmd_ast = malloc(sizeof(cmd_ast));
+	cmd_ast* cmd_ast = malloc(sizeof(*cmd_ast));
 	cmd_ast->op    = strdup(op);
 	cmd_ast->arg0  = a0;
 	cmd_ast->arg1  = a1;
@@ -38,7 +38,7 @@ free_cmd_ast(cmd_ast* cmd_ast)
 	if (cmd_ast->arg1) {
 		free_cmd_ast(cmd_ast->arg1);
 	}
-	/* TODO: Figure out if this needs to be freed
+	/* TODO: Implement free cmd_ast function
 	if (cmd_ast->cmd) {
 		free(cmd_ast->cmd);
 	}*/
@@ -64,13 +64,13 @@ cmd_ast_to_string(cmd_ast* cmd_ast)
 		char* r = cmd_ast_to_string(cmd_ast->arg1);
 		char* res = malloc(128);
 		sprintf(res, "(%s %s %s)", l, cmd_ast->op, r);
-		/*
+		
 		if (l) {
 			free(l);
 		}
 		if (r) {
 			free(r);
-		}*/
+		}
 		return res;
 	}
 }
